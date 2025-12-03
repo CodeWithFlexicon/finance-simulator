@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 @Table(name = "users")
 public class User {
@@ -13,12 +14,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "name", nullable = false)
-    private String fullName;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column(name = "password", nullable = false)
     private String passwordHash;
@@ -28,9 +31,10 @@ public class User {
 
     public User() {}
 
-    public User(String email, String fullName, String passwordHash) {
+    public User(String email, String firstName, String lastName, String passwordHash) {
         this.email = email;
-        this.fullName = fullName;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.passwordHash = passwordHash;
     }
 }
