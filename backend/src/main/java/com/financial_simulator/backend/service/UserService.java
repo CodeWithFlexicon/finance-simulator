@@ -1,7 +1,7 @@
 package com.financial_simulator.backend.service;
 
 import com.financial_simulator.backend.dto.LoginRequest;
-import com.financial_simulator.backend.dto.LoginResponse;
+import com.financial_simulator.backend.dto.UserResponse;
 import com.financial_simulator.backend.model.User;
 import com.financial_simulator.backend.repository.UserRepository;
 import com.financial_simulator.backend.dto.RegisterRequest;
@@ -54,5 +54,15 @@ public class UserService {
 
     public Optional<User> getById(Long id) {
         return userRepo.findById(id);
+    }
+
+    public UserResponse response(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getCreatedAt()
+        );
     }
 }

@@ -30,15 +30,7 @@ public class UserController {
     public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
         User saved = userService.register(request);
 
-        UserResponse response = new UserResponse(
-                saved.getId(),
-                saved.getEmail(),
-                saved.getFirstName(),
-                saved.getLastName(),
-                saved.getCreatedAt()
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.response(saved));
     }
 
     @PostMapping("/login")
