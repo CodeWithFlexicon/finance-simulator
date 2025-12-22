@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Getter
@@ -43,5 +44,9 @@ public class Account {
 
         this.balance = BigDecimal.ZERO.setScale(2);
         this.interestRate = BigDecimal.ZERO.setScale(3);
+    }
+
+    public void applyNewBalance(BigDecimal newBalance) {
+        this.balance = newBalance.setScale(2, RoundingMode.HALF_UP);
     }
 }

@@ -3,7 +3,9 @@ package com.financial_simulator.backend.service;
 import com.financial_simulator.backend.dto.AccountResponse;
 import com.financial_simulator.backend.model.*;
 import com.financial_simulator.backend.repository.AccountRepository;
+import com.financial_simulator.backend.repository.TransactionRepository;
 import com.financial_simulator.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,10 +16,12 @@ public class AccountService {
 
     private final AccountRepository accountRepo;
     private final UserRepository userRepo;
+    private final TransactionRepository transactionRepo;
 
-    public AccountService(AccountRepository accountRepo, UserRepository userRepo) {
+    public AccountService(AccountRepository accountRepo, UserRepository userRepo, TransactionRepository transactionRepo) {
         this.accountRepo = accountRepo;
         this.userRepo = userRepo;
+        this.transactionRepo = transactionRepo;
     }
 
     public Account createAccount(Long userId, AccountType type, String name) {
@@ -61,5 +65,47 @@ public class AccountService {
                 account.getInterestRate(),
                 account.getCreatedAt()
         );
+    }
+
+    @Transactional
+    public Account deposit(Long accountId, Long userId, BigDecimal amount) {
+        Account account = getAccount(accountId, userId);
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Deposit amount must be greater than 0.00");
+        }
+
+        BigDecimal newBalance = account.getBalance().add(amount).setScale(2);
+
+        account.applyNewBalance(newBalance);
+
+        transactionRepo.save(
+                new Transaction(account, TransactionType.DEPOSIT, amount, newBalance)
+        );
+
+        return account;
+    }
+
+    @Transactional
+    public Account withdraw(Long accountId, Long userId, BigDecimal amount) {
+        Account account = getAccount(accountId, userId);
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Withdrawal must be greater than 0.00");
+        }
+
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        BigDecimal newBalance = account.getBalance().subtract(amount).setScale(2);
+
+        account.applyNewBalance(newBalance);
+
+        transactionRepo.save(
+                new Transaction(account, TransactionType.WITHDRAWAL, amount, newBalance)
+        );
+
+        return account;
     }
 }
