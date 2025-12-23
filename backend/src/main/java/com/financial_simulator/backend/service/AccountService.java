@@ -1,6 +1,7 @@
 package com.financial_simulator.backend.service;
 
 import com.financial_simulator.backend.dto.AccountResponse;
+import com.financial_simulator.backend.dto.TransactionResponse;
 import com.financial_simulator.backend.model.*;
 import com.financial_simulator.backend.repository.AccountRepository;
 import com.financial_simulator.backend.repository.TransactionRepository;
@@ -107,5 +108,20 @@ public class AccountService {
         );
 
         return account;
+    }
+
+    public List<TransactionResponse> getAccountTransactions(Long accountId, Long userId) {
+        Account account = getAccount(accountId, userId);
+
+        return transactionRepo
+                .findByAccountOrderByCreatedAtDesc(account)
+                .stream()
+                .map(tx -> new TransactionResponse(
+                    tx.getId(),
+                    tx.getType().name(),
+                    tx.getAmount(),
+                    tx.getBalanceAfter(),
+                    tx.getCreatedAt()
+                )).toList();
     }
 }
