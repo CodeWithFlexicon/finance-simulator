@@ -1,5 +1,7 @@
 package com.financial_simulator.backend.service;
 
+import com.financial_simulator.backend.dto.LoginRequest;
+import com.financial_simulator.backend.dto.UserResponse;
 import com.financial_simulator.backend.model.User;
 import com.financial_simulator.backend.repository.UserRepository;
 import com.financial_simulator.backend.dto.RegisterRequest;
@@ -39,7 +41,28 @@ public class UserService {
         return userRepo.save(user);
     }
 
+    public User login(LoginRequest request) {
+        User user = userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Incorrect email"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return user;
+    }
+
     public Optional<User> getById(Long id) {
         return userRepo.findById(id);
+    }
+
+    public UserResponse response(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getCreatedAt()
+        );
     }
 }

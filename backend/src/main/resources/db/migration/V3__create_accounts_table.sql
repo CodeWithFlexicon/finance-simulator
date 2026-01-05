@@ -1,0 +1,9 @@
+CREATE TABLE accounts (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL DEFAULT 'Account',
+    account_type VARCHAR(20) NOT NULL,
+    balance NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    interest_rate NUMERIC(5, 3) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
