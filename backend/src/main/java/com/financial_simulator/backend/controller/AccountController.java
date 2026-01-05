@@ -74,4 +74,11 @@ public class AccountController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}/name")
+    public ResponseEntity<AccountResponse> rename(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody RenameAccountRequest request) {
+        Account account = accountService.renameAccount(id, user.getId(), request.getName());
+
+        return ResponseEntity.ok(accountService.response(account));
+    }
 }

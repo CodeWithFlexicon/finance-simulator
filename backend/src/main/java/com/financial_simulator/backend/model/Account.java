@@ -49,4 +49,8 @@ public class Account {
     public void applyNewBalance(BigDecimal newBalance) {
         this.balance = newBalance.setScale(2, RoundingMode.HALF_UP);
     }
+
+    public void rename(String newName) {
+        this.name = newName;
+    }
 }

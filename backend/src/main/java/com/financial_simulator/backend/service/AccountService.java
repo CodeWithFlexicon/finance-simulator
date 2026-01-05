@@ -170,4 +170,16 @@ public class AccountService {
                 LocalDateTime.now()
         );
     }
+
+    @Transactional
+    public Account renameAccount(Long accountId, Long userId, String newName) {
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new RuntimeException("Account name cannot be empty");
+        }
+
+        Account account = getAccount(accountId, userId);
+        account.rename(newName.trim());
+
+        return account;
+    }
 }
