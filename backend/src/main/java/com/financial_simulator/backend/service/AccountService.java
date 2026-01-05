@@ -2,14 +2,18 @@ package com.financial_simulator.backend.service;
 
 import com.financial_simulator.backend.dto.AccountResponse;
 import com.financial_simulator.backend.dto.TransactionResponse;
+import com.financial_simulator.backend.dto.TransferResponse;
 import com.financial_simulator.backend.model.*;
 import com.financial_simulator.backend.repository.AccountRepository;
 import com.financial_simulator.backend.repository.TransactionRepository;
 import com.financial_simulator.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -123,5 +127,47 @@ public class AccountService {
                     tx.getBalanceAfter(),
                     tx.getCreatedAt()
                 )).toList();
+    }
+
+    @Transactional
+    public TransferResponse transfer(Long userId, Long fromId, Long toId, BigDecimal amount) {
+        if (fromId.equals(toId)) {
+            throw new RuntimeException("Cannot transfer to the same account");
+        }
+
+        if(amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Transfer amount must be greater than 0.00");
+        }
+
+        Account from = getAccount(fromId, userId);
+        Account to = getAccount(toId, userId);
+
+        if (from.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        BigDecimal fromNewBalance = from.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal toNewBalance = to.getBalance().add(amount).setScale(2, RoundingMode.HALF_UP);
+
+        from.applyNewBalance(fromNewBalance);
+        to.applyNewBalance(toNewBalance);
+        amount = amount.setScale(2, RoundingMode.HALF_UP);
+
+        transactionRepo.save(
+                new Transaction(from, TransactionType.TRANSFER_OUT, amount, fromNewBalance)
+        );
+
+        transactionRepo.save(
+                new Transaction(to, TransactionType.TRANSFER_IN, amount, toNewBalance)
+        );
+
+        return new TransferResponse(
+                fromId,
+                toId,
+                amount,
+                fromNewBalance,
+                toNewBalance,
+                LocalDateTime.now()
+        );
     }
 }

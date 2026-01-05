@@ -1,9 +1,6 @@
 package com.financial_simulator.backend.controller;
 
-import com.financial_simulator.backend.dto.AccountRequest;
-import com.financial_simulator.backend.dto.AccountResponse;
-import com.financial_simulator.backend.dto.AmountRequest;
-import com.financial_simulator.backend.dto.TransactionResponse;
+import com.financial_simulator.backend.dto.*;
 import com.financial_simulator.backend.model.Account;
 import com.financial_simulator.backend.model.User;
 import com.financial_simulator.backend.service.AccountService;
@@ -69,5 +66,12 @@ public class AccountController {
     public ResponseEntity<List<TransactionResponse>> transactions(@AuthenticationPrincipal User user, @PathVariable Long id) {
         List<TransactionResponse> transactions = accountService.getAccountTransactions(id, user.getId());
         return ResponseEntity.ok(transactions);
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<TransferResponse> transfer(@AuthenticationPrincipal User user, @RequestBody TransferRequest request) {
+        TransferResponse response = accountService.transfer(user.getId(), request.getFromAccountId(), request.getToAccountId(), request.getAmount());
+
+        return ResponseEntity.ok(response);
     }
 }
