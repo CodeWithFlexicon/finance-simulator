@@ -8,7 +8,7 @@ import com.financial_simulator.backend.repository.AccountRepository;
 import com.financial_simulator.backend.repository.TransactionRepository;
 import com.financial_simulator.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,6 +16,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class AccountService {
 
@@ -30,6 +31,14 @@ public class AccountService {
     }
 
     public Account createAccount(Long userId, AccountType type, String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new RuntimeException("Account name cannot be empty");
+        }
+
+        if (name.length() > 50) {
+            throw new RuntimeException("Account name cannot exceed 50 characters");
+        }
+
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -50,7 +59,7 @@ public class AccountService {
         return accountRepo.findByUser(user);
     }
 
-    public Account getAccount(Long accountId, Long userId) {
+    public Account getAccount(Long userId, Long accountId) {
         Account account = accountRepo.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
@@ -73,14 +82,14 @@ public class AccountService {
     }
 
     @Transactional
-    public Account deposit(Long accountId, Long userId, BigDecimal amount) {
-        Account account = getAccount(accountId, userId);
+    public Account deposit(Long userId, Long accountId, BigDecimal amount) {
+        Account account = getAccount(userId, accountId);
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Deposit amount must be greater than 0.00");
         }
 
-        BigDecimal newBalance = account.getBalance().add(amount).setScale(2);
+        BigDecimal newBalance = account.getBalance().add(amount).setScale(2, RoundingMode.HALF_UP);
 
         account.applyNewBalance(newBalance);
 
@@ -92,8 +101,8 @@ public class AccountService {
     }
 
     @Transactional
-    public Account withdraw(Long accountId, Long userId, BigDecimal amount) {
-        Account account = getAccount(accountId, userId);
+    public Account withdraw(Long userId, Long accountId, BigDecimal amount) {
+        Account account = getAccount(userId, accountId);
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Withdrawal must be greater than 0.00");
@@ -103,7 +112,7 @@ public class AccountService {
             throw new RuntimeException("Insufficient funds");
         }
 
-        BigDecimal newBalance = account.getBalance().subtract(amount).setScale(2);
+        BigDecimal newBalance = account.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP);
 
         account.applyNewBalance(newBalance);
 
@@ -112,21 +121,6 @@ public class AccountService {
         );
 
         return account;
-    }
-
-    public List<TransactionResponse> getAccountTransactions(Long accountId, Long userId) {
-        Account account = getAccount(accountId, userId);
-
-        return transactionRepo
-                .findByAccountOrderByCreatedAtDesc(account)
-                .stream()
-                .map(tx -> new TransactionResponse(
-                    tx.getId(),
-                    tx.getType().name(),
-                    tx.getAmount(),
-                    tx.getBalanceAfter(),
-                    tx.getCreatedAt()
-                )).toList();
     }
 
     @Transactional
@@ -139,19 +133,19 @@ public class AccountService {
             throw new RuntimeException("Transfer amount must be greater than 0.00");
         }
 
-        Account from = getAccount(fromId, userId);
-        Account to = getAccount(toId, userId);
+        Account from = getAccount(userId, fromId);
+        Account to = getAccount(userId, toId);
 
         if (from.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Insufficient funds");
         }
 
+        amount = amount.setScale(2, RoundingMode.HALF_UP);
         BigDecimal fromNewBalance = from.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP);
         BigDecimal toNewBalance = to.getBalance().add(amount).setScale(2, RoundingMode.HALF_UP);
 
         from.applyNewBalance(fromNewBalance);
         to.applyNewBalance(toNewBalance);
-        amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         transactionRepo.save(
                 new Transaction(from, TransactionType.TRANSFER_OUT, amount, fromNewBalance)
@@ -172,14 +166,18 @@ public class AccountService {
     }
 
     @Transactional
-    public Account renameAccount(Long accountId, Long userId, String newName) {
+    public AccountResponse renameAccount(Long userId, Long accountId, String newName) {
         if (newName == null || newName.trim().isEmpty()) {
             throw new RuntimeException("Account name cannot be empty");
         }
 
-        Account account = getAccount(accountId, userId);
+        if (newName.length() > 100) {
+            throw new RuntimeException("Account name cannot exceed 100 characters");
+        }
+
+        Account account = getAccount(userId, accountId);
         account.rename(newName.trim());
 
-        return account;
+        return response(account);
     }
 }

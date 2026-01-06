@@ -4,9 +4,9 @@ import com.financial_simulator.backend.model.Transaction;
 import com.financial_simulator.backend.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import java.util.*;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByAccount(Account account);
     List<Transaction> findByAccountOrderByCreatedAtDesc(Account account);
+    Optional<Transaction> findByIdAndAccount_User_Id(Long id, Long userId);
 }

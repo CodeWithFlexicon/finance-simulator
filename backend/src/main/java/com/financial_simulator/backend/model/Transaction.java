@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,10 +34,25 @@ public class Transaction {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @Column(length = 255)
+    private String memo;
+
     public Transaction(Account account, TransactionType type, BigDecimal amount, BigDecimal balanceAfter) {
         this.account = account;
         this.type = type;
-        this.amount = amount.setScale(2);
-        this.balanceAfter = balanceAfter.setScale(2);
+        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
+        this.balanceAfter = balanceAfter.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public void assignCategory(Category c) {
+        this.category = c;
+    }
+
+    public void assignMemo(String memo) {
+        this.memo = memo;
     }
 }
