@@ -1,16 +1,22 @@
 package com.financial_simulator.backend.service;
 
+import com.financial_simulator.backend.dto.TransactionFilterRequest;
 import com.financial_simulator.backend.dto.TransactionResponse;
 import com.financial_simulator.backend.dto.UpdateTransactionRequest;
 import com.financial_simulator.backend.model.Account;
 import com.financial_simulator.backend.model.Category;
 import com.financial_simulator.backend.model.Transaction;
+import com.financial_simulator.backend.model.TransactionType;
 import com.financial_simulator.backend.repository.AccountRepository;
 import com.financial_simulator.backend.repository.CategoryRepository;
 import com.financial_simulator.backend.repository.TransactionRepository;
+import com.financial_simulator.backend.specifications.TransactionSpecifications;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -70,5 +76,45 @@ public class TransactionService {
                 cat != null ? cat.getName() : null,
                 tx.getMemo()
         );
+    }
+
+    public Page<TransactionResponse> search(Long userId, TransactionFilterRequest f, Pageable pageable) {
+        Specification<Transaction> spec = TransactionSpecifications.belongsToUser(userId);
+
+        if (f.getAccountId() != null) {
+            spec = spec.and(TransactionSpecifications.accountId(f.getAccountId()));
+        }
+
+        if (f.getType() != null) {
+            spec = spec.and(TransactionSpecifications.type(f.getType()));
+        }
+
+        if (Boolean.TRUE.equals(f.getUncategorized())) {
+            spec = spec.and(TransactionSpecifications.uncategorized());
+        } else if (f.getCategoryId() != null) {
+            spec = spec.and(TransactionSpecifications.categoryId(f.getCategoryId()));
+        }
+
+        if (f.getMinAmount() != null) {
+            spec = spec.and(TransactionSpecifications.minAmount(f.getMinAmount()));
+        }
+
+        if (f.getMaxAmount() != null) {
+            spec = spec.and(TransactionSpecifications.maxAmount(f.getMaxAmount()));
+        }
+
+        if (f.getFrom() != null) {
+            spec = spec.and(TransactionSpecifications.from(f.getFrom()));
+        }
+
+        if (f.getTo() != null) {
+            spec = spec.and(TransactionSpecifications.to(f.getTo()));
+        }
+
+        if (f.getQ() != null) {
+            spec = spec.and(TransactionSpecifications.memoContains(f.getQ()));
+        }
+
+        return transactionRepo.findAll(spec, pageable).map(this::response);
     }
 }
