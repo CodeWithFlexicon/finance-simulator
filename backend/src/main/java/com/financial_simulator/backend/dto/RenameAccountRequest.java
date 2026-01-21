@@ -1,17 +1,12 @@
 package com.financial_simulator.backend.dto;
 
-import com.financial_simulator.backend.model.AccountType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class AccountRequest {
-    @NotNull
-    private AccountType accountType;
-
+public class RenameAccountRequest {
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 100)
     private String name;
 }

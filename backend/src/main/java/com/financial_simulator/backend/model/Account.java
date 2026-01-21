@@ -1,6 +1,7 @@
 package com.financial_simulator.backend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,7 @@ public class Account {
     private User user;
 
     @Column(nullable = false)
+    @Size(max = 50)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -42,11 +44,15 @@ public class Account {
         this.name = name;
         this.accountType = accountType;
 
-        this.balance = BigDecimal.ZERO.setScale(2);
-        this.interestRate = BigDecimal.ZERO.setScale(3);
+        this.balance = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        this.interestRate = interestRate.setScale(3, RoundingMode.HALF_UP);
     }
 
     public void applyNewBalance(BigDecimal newBalance) {
         this.balance = newBalance.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public void rename(String newName) {
+        this.name = newName;
     }
 }

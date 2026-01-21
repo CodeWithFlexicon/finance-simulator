@@ -1,12 +1,12 @@
 package com.financial_simulator.backend.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @AllArgsConstructor
 public class TransactionResponse {
     private Long id;
@@ -14,4 +14,8 @@ public class TransactionResponse {
     private BigDecimal amount;
     private BigDecimal balanceAfter;
     private LocalDateTime createdAt;
+
+    private Long categoryId;
+    private String categoryName;
+    private String memo;
 }
