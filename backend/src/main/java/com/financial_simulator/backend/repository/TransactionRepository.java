@@ -30,6 +30,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         BigDecimal getTotal();
     }
 
+    interface SpentByCategoryRow {
+        Long getCategoryId();
+        BigDecimal getSpent();
+    }
+
     @Query(value = """
             SELECT
                 date_trunc('month', t.created_at)::date AS month_date,
@@ -91,6 +96,32 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     List<CategoryTotalsRow> findCategoryTotals(
             @Param("userId") Long userId,
             @Param("accountId") Long accountId,
+            @Param("startAt") LocalDateTime startAt,
+            @Param("endExclusive") LocalDateTime endExclusive,
+            @Param("includeTransfers") boolean includeTransfers
+    );
+
+    @Query(value = """
+            SELECT
+                t.category_id AS category_id,
+                COALESCE(SUM(t.amount), 0) AS spent
+            FROM transactions t
+            JOIN accounts a ON a.id = t.account_id
+            WHERE a.user_id = :userId
+            AND t.created_at >= :startAt
+            AND t.created_at < :endExclusive
+            AND t.category_id IN (:categoryIds)
+            AND (
+                t.transaction_type = 'WITHDRAWAL'
+                OR (:includeTransfers = true AND t.transaction_type = 'TRANSFER_OUT')
+            )
+            AND (:accountId IS NULL OR a.id = :accountId)
+            GROUP BY t.category_id
+            """, nativeQuery = true)
+    List<SpentByCategoryRow> findSpentByCategoryForMonth(
+            @Param("userId") Long userId,
+            @Param("accountId") Long accountId,
+            @Param("categoryIds") List<Long> categoryIds,
             @Param("startAt") LocalDateTime startAt,
             @Param("endExclusive") LocalDateTime endExclusive,
             @Param("includeTransfers") boolean includeTransfers
