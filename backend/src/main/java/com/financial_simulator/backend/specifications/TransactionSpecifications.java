@@ -7,7 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class TransactionSpecifications {
+public final class TransactionSpecifications {
 
     private TransactionSpecifications() {}
 

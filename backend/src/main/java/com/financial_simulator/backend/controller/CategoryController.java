@@ -6,7 +6,6 @@ import com.financial_simulator.backend.model.Category;
 import com.financial_simulator.backend.model.User;
 import com.financial_simulator.backend.service.CategoryService;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,8 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> create(@AuthenticationPrincipal User user, @Valid @RequestBody CategoryRequest request) {
+    public ResponseEntity<CategoryResponse> create(@AuthenticationPrincipal User user,
+            @Valid @RequestBody CategoryRequest request) {
         Category category = categoryService.create(user.getId(), request);
         return ResponseEntity.status(201).body(categoryService.response(category));
     }

@@ -6,7 +6,6 @@ import com.financial_simulator.backend.dto.UpdateTransactionRequest;
 import com.financial_simulator.backend.model.Account;
 import com.financial_simulator.backend.model.Category;
 import com.financial_simulator.backend.model.Transaction;
-import com.financial_simulator.backend.model.TransactionType;
 import com.financial_simulator.backend.repository.AccountRepository;
 import com.financial_simulator.backend.repository.CategoryRepository;
 import com.financial_simulator.backend.repository.TransactionRepository;

@@ -2,6 +2,7 @@ package com.financial_simulator.backend.service;
 
 import com.financial_simulator.backend.dto.LoginRequest;
 import com.financial_simulator.backend.dto.UserResponse;
+import com.financial_simulator.backend.exception.UnauthorizedException;
 import com.financial_simulator.backend.model.User;
 import com.financial_simulator.backend.repository.UserRepository;
 import com.financial_simulator.backend.dto.RegisterRequest;
@@ -43,10 +44,10 @@ public class UserService {
 
     public User login(LoginRequest request) {
         User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Incorrect email"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         return user;

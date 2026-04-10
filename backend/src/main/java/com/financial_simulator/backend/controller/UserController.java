@@ -30,7 +30,7 @@ public class UserController {
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
         User saved = userService.register(request);
 
-        return ResponseEntity.ok(userService.response(saved));
+        return ResponseEntity.status(201).body(userService.response(saved));
     }
 
     @PostMapping("/login")
@@ -51,7 +51,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUser(@PathVariable Long id) {
-        return userService.getById(id);
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+        User user = userService.getById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(userService.response(user));
     }
 }

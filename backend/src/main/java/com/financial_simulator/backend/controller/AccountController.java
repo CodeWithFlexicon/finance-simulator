@@ -24,19 +24,18 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<AccountResponse> create(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody AccountRequest request
-    ) {
+            @Valid @RequestBody AccountRequest request) {
         Account account = accountService.createAccount(
                 user.getId(),
                 request.getAccountType(),
-                request.getName()
-        );
+                request.getName());
         return ResponseEntity.status(201).body(accountService.response(account));
     }
 
     @GetMapping
     public ResponseEntity<List<AccountResponse>> list(@AuthenticationPrincipal User user) {
-        List<AccountResponse> accounts = accountService.getUserAccounts(user.getId()).stream().map(accountService::response).toList();
+        List<AccountResponse> accounts = accountService.getUserAccounts(user.getId()).stream()
+                .map(accountService::response).toList();
 
         return ResponseEntity.ok(accounts);
     }
@@ -44,34 +43,38 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponse> get(
             @AuthenticationPrincipal User user,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         Account account = accountService.getAccount(user.getId(), id);
 
         return ResponseEntity.ok(accountService.response(account));
     }
 
     @PostMapping("/{id}/deposit")
-    public ResponseEntity<AccountResponse> deposit(@AuthenticationPrincipal User user, @PathVariable Long id, @Valid @RequestBody AmountRequest request) {
+    public ResponseEntity<AccountResponse> deposit(@AuthenticationPrincipal User user, @PathVariable Long id,
+            @Valid @RequestBody AmountRequest request) {
         Account account = accountService.deposit(user.getId(), id, request.getAmount());
         return ResponseEntity.ok(accountService.response(account));
     }
 
     @PostMapping("/{id}/withdraw")
-    public ResponseEntity<AccountResponse> withdraw(@AuthenticationPrincipal User user, @PathVariable Long id, @Valid @RequestBody AmountRequest request) {
+    public ResponseEntity<AccountResponse> withdraw(@AuthenticationPrincipal User user, @PathVariable Long id,
+            @Valid @RequestBody AmountRequest request) {
         Account account = accountService.withdraw(user.getId(), id, request.getAmount());
         return ResponseEntity.ok(accountService.response(account));
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<TransferResponse> transfer(@AuthenticationPrincipal User user, @Valid @RequestBody TransferRequest request) {
-        TransferResponse response = accountService.transfer(user.getId(), request.getFromAccountId(), request.getToAccountId(), request.getAmount());
+    public ResponseEntity<TransferResponse> transfer(@AuthenticationPrincipal User user,
+            @Valid @RequestBody TransferRequest request) {
+        TransferResponse response = accountService.transfer(user.getId(), request.getFromAccountId(),
+                request.getToAccountId(), request.getAmount());
 
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/name")
-    public ResponseEntity<AccountResponse> rename(@AuthenticationPrincipal User user, @PathVariable Long id, @Valid @RequestBody RenameAccountRequest request) {
+    public ResponseEntity<AccountResponse> rename(@AuthenticationPrincipal User user, @PathVariable Long id,
+            @Valid @RequestBody RenameAccountRequest request) {
         return ResponseEntity.ok(accountService.renameAccount(user.getId(), id, request.getName()));
     }
 }

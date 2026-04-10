@@ -24,8 +24,7 @@ public class ReportController {
             @RequestParam YearMonth start,
             @RequestParam YearMonth end,
             @RequestParam(required = false) Long accountId,
-            @RequestParam(defaultValue = "false") boolean includeTransfers
-    ) {
+            @RequestParam(defaultValue = "false") boolean includeTransfers) {
         MonthlyReportResponse response = reportService.monthly(user.getId(), start, end, accountId, includeTransfers);
 
         return ResponseEntity.ok(response);

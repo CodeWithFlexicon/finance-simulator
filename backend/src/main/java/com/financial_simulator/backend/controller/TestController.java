@@ -17,8 +17,7 @@ public class TestController {
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
-                user.getLastName()
-        );
+                user.getLastName());
 
         return ResponseEntity.ok(response);
     }
@@ -27,6 +26,6 @@ public class TestController {
             Long id,
             String email,
             String firstName,
-            String lastName
-    ) {}
+            String lastName) {
+    }
 }

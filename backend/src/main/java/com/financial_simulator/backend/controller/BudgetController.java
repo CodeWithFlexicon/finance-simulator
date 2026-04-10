@@ -27,8 +27,7 @@ public class BudgetController {
             @AuthenticationPrincipal User user,
             @PathVariable Long categoryId,
             @PathVariable String month,
-            @Valid @RequestBody BudgetUpsertRequest request
-    ) {
+            @Valid @RequestBody BudgetUpsertRequest request) {
         YearMonth ym = YearMonth.parse(month);
         BudgetResponse res = budgetService.upsert(user.getId(), categoryId, ym, request.getAmount());
         return ResponseEntity.ok(res);
@@ -39,8 +38,7 @@ public class BudgetController {
             @AuthenticationPrincipal User user,
             @RequestParam String month,
             @RequestParam(required = false) Long accountId,
-            @RequestParam(defaultValue = "false") boolean includeTransfers
-    ) {
+            @RequestParam(defaultValue = "false") boolean includeTransfers) {
         YearMonth ym = YearMonth.parse(month);
         return ResponseEntity.ok(budgetService.listForMonth(user.getId(), ym, accountId, includeTransfers));
     }
