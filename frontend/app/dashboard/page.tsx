@@ -16,7 +16,7 @@ export default function Dashboard() {
     if (!token) {
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     getAccounts().then(setAccounts).catch(console.error);
