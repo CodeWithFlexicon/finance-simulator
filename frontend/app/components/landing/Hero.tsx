@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroPreview from "./HeroPreview";
 
 export default function Hero() {
   return (
@@ -34,6 +35,7 @@ export default function Hero() {
             </Link>
           </div>
         </div>
+        <HeroPreview />
       </div>
     </section>
   );
