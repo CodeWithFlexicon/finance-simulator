@@ -1,5 +1,5 @@
 import { getToken } from "./auth";
-import { LoginResponse, AccountResponse, RegisterResponse } from "./types";
+import { LoginResponse, AccountResponse } from "./types";
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -27,13 +27,13 @@ export async function register(
   lastName: string,
   email: string,
   password: string,
-): Promise<RegisterResponse> {
-  const res = await fetch(`${BASE_URL}/users/login`, {
+): Promise<LoginResponse> {
+  const res = await fetch(`${BASE_URL}/users/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ firstName, lastName, email, password }),
   });
 
   if (!res.ok) {

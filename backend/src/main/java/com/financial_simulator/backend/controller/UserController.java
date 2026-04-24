@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
@@ -27,10 +25,19 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
         User saved = userService.register(request);
 
-        return ResponseEntity.status(201).body(userService.response(saved));
+        String token = jwtService.generateToken(saved.getEmail());
+
+        LoginResponse response = new LoginResponse(
+                saved.getId(),
+                saved.getEmail(),
+                saved.getFirstName(),
+                saved.getLastName(),
+                token);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -44,8 +51,7 @@ public class UserController {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                token
-        );
+                token);
 
         return ResponseEntity.ok(response);
     }
@@ -53,7 +59,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
         User user = userService.getById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         return ResponseEntity.ok(userService.response(user));
     }
