@@ -6,12 +6,20 @@ import { AccountResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AccountCard from "../components/dashboard/AccountCard";
+import { formatCurrency } from "@/lib/format";
 
 export default function Dashboard() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+
+  const highestAccount =
+    accounts.length > 0
+      ? accounts.reduce((max, acc) => (acc.balance > max.balance ? acc : max))
+      : null;
 
   useEffect(() => {
     const token = getToken();
@@ -41,28 +49,55 @@ export default function Dashboard() {
   }, [router]);
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-background px-6 py-12">
-        <div className="mx-auto max-w-7xl">Loading dashboard...</div>
-      </main>
-    );
+    return <p className="text-text-main/70">Loading dashboard...</p>;
   }
 
   return (
-    <section>
-      <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
-        Overview
-      </p>
+    <>
+      {error && (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+      <section className="mb-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="rounded-4xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <p className="text-sm text-text-main/60">Total Balance</p>
+          <h3 className="mt-3 text-3xl font-semibold text-primary">
+            {formatCurrency(totalBalance)}
+          </h3>
+        </div>
 
-      <h2 className="mt-3 text-4xl font-semibold tracking-tight text-text-main">
-        Your financial snapshot
-      </h2>
+        <div className="rounded-4xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <p className="text-sm text-text-main/60">Accounts</p>
+          <h3 className="mt-3 text-3xl font-semibold text-text-main">
+            {accounts.length}
+          </h3>
+        </div>
 
-      <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {accounts.map((account) => (
-          <AccountCard key={account.id} account={account} />
-        ))}
-      </div>
-    </section>
+        <div className="rounded-4xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <p className="text-sm text-text-main/60">Top Account</p>
+          <h3 className="mt-3 text-lg font-semibold text-text-main">
+            {highestAccount
+              ? `${highestAccount.name} (${highestAccount.accountType})`
+              : "No accounts"}
+          </h3>
+        </div>
+      </section>
+      <section>
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+          Overview
+        </p>
+
+        <h2 className="mt-3 text-4xl font-semibold tracking-tight text-text-main">
+          Your financial snapshot
+        </h2>
+
+        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {accounts.map((account) => (
+            <AccountCard key={account.id} account={account} />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

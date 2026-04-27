@@ -42,6 +42,11 @@ export default function RegisterPage() {
 
   return (
     <>
+      {error && (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
       <Navbar />
       <main className="min-h-screen bg-background px-6 py-12">
         <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl items-center justify-center">
