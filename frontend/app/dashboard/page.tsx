@@ -5,6 +5,7 @@ import { getToken, removeToken } from "@/lib/auth";
 import { AccountResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import AccountCard from "../components/dashboard/AccountCard";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -27,7 +28,10 @@ export default function Dashboard() {
       } catch {
         removeToken();
         setError("Your session has expired. Please log in again.");
-        router.replace("/login");
+
+        setTimeout(() => {
+          router.replace("/login");
+        }, 1200);
       } finally {
         setLoading(false);
       }
@@ -44,46 +48,21 @@ export default function Dashboard() {
     );
   }
 
-  function handleLogout() {
-    removeToken();
-    router.replace("/");
-  }
-
   return (
-    <main className="min-h-screen bg-background px-6 py-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="mb-6 text-3xl font-semibold text-text-main">
-            Accounts
-          </h1>
+    <section>
+      <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+        Overview
+      </p>
 
-          <button
-            onClick={handleLogout}
-            className="rounded-full border border-text-main/10 bg-white px-5 py-2.5 text-sm font-medium text-text-main transition hover:border-primary hover:text-primary"
-          >
-            Log Out
-          </button>
-        </div>
+      <h2 className="mt-3 text-4xl font-semibold tracking-tight text-text-main">
+        Your financial snapshot
+      </h2>
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
-
-        <div className="flex flex-col gap-4">
-          {accounts.map((account) => (
-            <div
-              key={account.id}
-              className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5"
-            >
-              <h2 className="text-xl font-semibold text-text-main">
-                {account.name}
-              </h2>
-              <p className="mt-2 text-text-main/70">{account.accountType}</p>
-              <p className="mt-4 text-2xl font-semibold text-primary">
-                ${account.balance}
-              </p>
-            </div>
-          ))}
-        </div>
+      <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {accounts.map((account) => (
+          <AccountCard key={account.id} account={account} />
+        ))}
       </div>
-    </main>
+    </section>
   );
 }
