@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthCard from "../components/auth/AuthCard";
 import AuthField from "../components/auth/AuthField";
 import Link from "next/link";
 import Navbar from "../components/landing/Navbar";
 import { useRouter } from "next/navigation";
 import { register } from "@/lib/api";
-import { saveToken } from "@/lib/auth";
+import { getToken, saveToken } from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -31,6 +31,14 @@ export default function RegisterPage() {
       setError(message);
     }
   }
+
+  useEffect(() => {
+    const token = getToken();
+
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   return (
     <>

@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthCard from "../components/auth/AuthCard";
 import AuthField from "../components/auth/AuthField";
 import Navbar from "../components/landing/Navbar";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
-import { saveToken } from "@/lib/auth";
+import { getToken, saveToken } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,6 +34,14 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   }
+
+  useEffect(() => {
+    const token = getToken();
+
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   return (
     <>

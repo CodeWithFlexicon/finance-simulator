@@ -44,10 +44,26 @@ export default function Dashboard() {
     );
   }
 
+  function handleLogout() {
+    removeToken();
+    router.replace("/");
+  }
+
   return (
     <main className="min-h-screen bg-background px-6 py-12">
       <div className="mx-auto max-w-7xl">
-        <h1 className="mb-6 text-3xl font-semibold text-text-main">Accounts</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="mb-6 text-3xl font-semibold text-text-main">
+            Accounts
+          </h1>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-full border border-text-main/10 bg-white px-5 py-2.5 text-sm font-medium text-text-main transition hover:border-primary hover:text-primary"
+          >
+            Log Out
+          </button>
+        </div>
 
         {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
