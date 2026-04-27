@@ -1,22 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthCard from "../components/auth/AuthCard";
 import AuthField from "../components/auth/AuthField";
 import Link from "next/link";
 import Navbar from "../components/landing/Navbar";
+import { useRouter } from "next/navigation";
+import { register } from "@/lib/api";
+import { getToken, saveToken } from "@/lib/auth";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    console.log("register", { firstName, lastName, email, password });
+    try {
+      const data = await register(firstName, lastName, email, password);
+      saveToken(data.token);
+      router.push("/dashboard");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
+    }
   }
+
+  useEffect(() => {
+    const token = getToken();
+
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   return (
     <>

@@ -1,20 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthCard from "../components/auth/AuthCard";
 import AuthField from "../components/auth/AuthField";
 import Navbar from "../components/landing/Navbar";
+import { useRouter } from "next/navigation";
+import { login } from "@/lib/api";
+import { getToken, saveToken } from "@/lib/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
-    console.log("login", { email, password });
+    try {
+      const data = await login(email, password);
+      saveToken(data.token);
+      router.push("/dashboard");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
+  useEffect(() => {
+    const token = getToken();
+
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   return (
     <>
@@ -46,11 +73,18 @@ export default function LoginPage() {
                 required
               />
 
+              {error && (
+                <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="mt-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:opacity-90"
               >
-                Log In
+                {isSubmitting ? "Logging in..." : "Log In"}
               </button>
             </form>
 

@@ -22,6 +22,34 @@ export async function login(
   return res.json();
 }
 
+export async function register(
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string,
+): Promise<LoginResponse> {
+  const res = await fetch(`${BASE_URL}/users/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ firstName, lastName, email, password }),
+  });
+
+  if (!res.ok) {
+    let message = "Unable to create account";
+
+    try {
+      const errorData = await res.json();
+      message = errorData.message ?? message;
+    } catch {}
+
+    throw new Error(message);
+  }
+
+  return res.json();
+}
+
 export async function getAccounts(): Promise<AccountResponse[]> {
   const token = getToken();
 
