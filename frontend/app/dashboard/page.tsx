@@ -11,7 +11,6 @@ import { formatCurrency } from "@/lib/format";
 export default function Dashboard() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
@@ -35,11 +34,7 @@ export default function Dashboard() {
         setAccounts(data);
       } catch {
         removeToken();
-        setError("Your session has expired. Please log in again.");
-
-        setTimeout(() => {
-          router.replace("/login");
-        }, 1200);
+        router.replace("/login?error=session-expired")
       } finally {
         setLoading(false);
       }
@@ -54,11 +49,6 @@ export default function Dashboard() {
 
   return (
     <>
-      {error && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
-        </div>
-      )}
       <section className="mb-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-4xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <p className="text-sm text-text-main/60">Total Balance</p>

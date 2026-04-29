@@ -8,9 +8,12 @@ import Navbar from "../components/landing/Navbar";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
 import { getToken, saveToken } from "@/lib/auth";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sessionError = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,6 +55,11 @@ export default function LoginPage() {
             title="Welcome back"
             subtitle="Log in to continue tracking your accounts, budgets, and financial activity."
           >
+            {sessionError === "session-expired" && (
+              <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                Your session expired. Please log in again.
+              </div>
+            )}
             <form onSubmit={handleLogin} className="flex flex-col gap-5">
               <AuthField
                 id="email"
