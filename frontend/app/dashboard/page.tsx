@@ -34,7 +34,7 @@ export default function Dashboard() {
         setAccounts(data);
       } catch {
         removeToken();
-        router.replace("/login?error=session-expired")
+        router.replace("/login?error=session-expired");
       } finally {
         setLoading(false);
       }
@@ -86,6 +86,45 @@ export default function Dashboard() {
           {accounts.map((account) => (
             <AccountCard key={account.id} account={account} />
           ))}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+          Activity
+        </p>
+
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-main">
+          Recent transactions
+        </h2>
+
+        <div className="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <div className="flex flex-col gap-4">
+            {[
+              { name: "Netflix", amount: -24.99, date: "Jan 18" },
+              { name: "Grocery Store", amount: -84.23, date: "Jan 12" },
+              { name: "Salary", amount: 2400, date: "Jan 10" },
+            ].map((txn, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between border-b border-text-main/5 pb-4 last:border-none last:pb-0"
+              >
+                <div>
+                  <p className="text-sm font-medium text-text-main">
+                    {txn.name}
+                  </p>
+                  <p className="text-xs text-text-main/60">{txn.date}</p>
+                </div>
+
+                <p
+                  className={`text-sm font-semibold ${txn.amount < 0 ? "text-red-500" : "text-green-500"}`}
+                >
+                  {txn.amount < 0 ? "-" : "+"}
+                  {formatCurrency(Math.abs(txn.amount))}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </>
