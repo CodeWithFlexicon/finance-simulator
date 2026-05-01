@@ -1,14 +1,25 @@
 "use client";
 
 import { removeToken } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function DashboardTopbar() {
   const router = useRouter();
+  const pathname = usePathname();
 
   function handleLogout() {
     removeToken();
     router.replace("/");
+  }
+
+  function getTitle() {
+    if (pathname === "/dashboard") return "Financial Overview";
+    if (pathname.startsWith("/dashboard/accounts")) return "Accounts";
+    if (pathname.startsWith("/dashboard/transactions")) return "Transactions";
+    if (pathname.startsWith("/dashboard/budgets")) return "Budgets";
+    if (pathname.startsWith("/dashboard/reports")) return "Reports";
+
+    return "Dashboard";
   }
 
   return (
@@ -16,7 +27,7 @@ export default function DashboardTopbar() {
       <div>
         <p className="text-sm text-text-main/60">Welcome back</p>
         <h1 className="text-2xl font-semibold tracking-tight text-text-main">
-          Financial Overview
+          {getTitle()}
         </h1>
       </div>
 
