@@ -14,6 +14,12 @@ export default function AccountDetailPage() {
   const [account, setAccount] = useState<AccountResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const transactions = [
+    { name: "Starbucks", amount: -6.75, date: "Jan 20" },
+    { name: "Salary", amount: 2400, date: "Jan 15" },
+    { name: "Amazon", amount: -54.23, date: "Jan 14" },
+  ];
+
   useEffect(() => {
     const token = getToken();
 
@@ -57,6 +63,12 @@ export default function AccountDetailPage() {
 
   return (
     <section>
+      <button
+        onClick={() => router.push("/dashboard/accounts")}
+        className="mb-6 flex items-center gap-2 text-sm font-medium text-primary hover:opacity-80"
+      >
+        ← Back to Accounts
+      </button>
       <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
         Account
       </p>
@@ -75,7 +87,30 @@ export default function AccountDetailPage() {
         <p className="text-lg font-semibold text-text-main">Transactions</p>
 
         <div className="mt-6 flex flex-col gap-4">
-          <p className="text-sm text-text-main/60">No transactions yet.</p>
+          {transactions.length > 0 ? (
+            transactions.map((txn, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between border-b border-text-main/5 pb-4 last:border-none last:pb-0"
+              >
+                <div>
+                  <p className="text-sm font-medium text-text-main">
+                    {txn.name}
+                  </p>
+                  <p className="text-xs text-text-main/60">{txn.date}</p>
+                </div>
+
+                <p
+                  className={`{text-sm font-semibold ${txn.amount < 0 ? "text-red-600" : "text-green-500"}`}
+                >
+                  {txn.amount < 0 ? "-" : "+"}
+                  {formatCurrency(Math.abs(txn.amount))}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-text-main/60">No transactions yet.ß</p>
+          )}
         </div>
       </div>
     </section>
