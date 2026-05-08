@@ -1,5 +1,6 @@
 "use client";
 
+import TransactionItem from "@/app/components/dashboard/TransactionItem";
 import { getAccounts } from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
 import { formatCurrency } from "@/lib/format";
@@ -89,27 +90,12 @@ export default function AccountDetailPage() {
         <div className="mt-6 flex flex-col gap-4">
           {transactions.length > 0 ? (
             transactions.map((txn, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between border-b border-text-main/5 pb-4 last:border-none last:pb-0"
-              >
-                <div>
-                  <p className="text-sm font-medium text-text-main">
-                    {txn.name}
-                  </p>
-                  <p className="text-xs text-text-main/60">{txn.date}</p>
-                </div>
-
-                <p
-                  className={`{text-sm font-semibold ${txn.amount < 0 ? "text-red-600" : "text-green-500"}`}
-                >
-                  {txn.amount < 0 ? "-" : "+"}
-                  {formatCurrency(Math.abs(txn.amount))}
-                </p>
-              </div>
+              <TransactionItem key={index} transaction={txn} />
             ))
           ) : (
-            <p className="text-sm text-text-main/60">No transactions yet.ß</p>
+            <p className="py-6 text-center text-sm text-text-main/60">
+              No transactions yet.
+            </p>
           )}
         </div>
       </div>
