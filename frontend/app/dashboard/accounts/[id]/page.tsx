@@ -15,10 +15,21 @@ export default function AccountDetailPage() {
   const [account, setAccount] = useState<AccountResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const transactions = [
-    { name: "Starbucks", amount: -6.75, date: "Jan 20" },
-    { name: "Salary", amount: 2400, date: "Jan 15" },
-    { name: "Amazon", amount: -54.23, date: "Jan 14" },
+  const transactionGroups = [
+    {
+      label: "Today",
+      transactions: [
+        { name: "Netflix", amount: -24.99, date: "2:14 PM" },
+        { name: "Coffee Shop", amount: -8.25, date: "9:10 AM" },
+      ],
+    },
+    {
+      label: "Earlier This Week",
+      transactions: [
+        { name: "Salary", amount: 2400, date: "Jan 15" },
+        { name: "Amazon", amount: -54.23, date: "Jan 14" },
+      ],
+    },
   ];
 
   useEffect(() => {
@@ -87,16 +98,20 @@ export default function AccountDetailPage() {
       <div className="mt-12 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
         <p className="text-lg font-semibold text-text-main">Transactions</p>
 
-        <div className="mt-6 flex flex-col gap-4">
-          {transactions.length > 0 ? (
-            transactions.map((txn, index) => (
-              <TransactionItem key={index} transaction={txn} />
-            ))
-          ) : (
-            <p className="py-6 text-center text-sm text-text-main/60">
-              No transactions yet.
-            </p>
-          )}
+        <div className="mt-6 flex flex-col gap-8">
+          {transactionGroups.map((group) => (
+            <div key={group.label}>
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-main/50">
+                {group.label}
+              </h3>
+
+              <div className="flex flex-col gap-3">
+                {group.transactions.map((txn, index) => (
+                  <TransactionItem key={index} transaction={txn} />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
