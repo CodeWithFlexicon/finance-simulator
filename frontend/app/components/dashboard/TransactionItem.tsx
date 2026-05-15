@@ -1,18 +1,55 @@
 import { formatCurrency } from "@/lib/format";
+import { TransactionResponse } from "@/lib/types";
 import { FaMoneyBillWave, FaShoppingCart } from "react-icons/fa";
 
-type Transaction = {
-  name: string;
-  amount: number;
-  date: string;
+type TransactionItemProps = {
+  transaction: TransactionResponse;
 };
 
-type TransactionItemProps = {
-  transaction: Transaction;
-};
+function getTransactionLabel(transaction: TransactionResponse) {
+  if (transaction.memo) return transaction.memo;
+  if (transaction.categoryName) return transaction.categoryName;
+
+  switch (transaction.type) {
+    case "DEPOSIT":
+      return "Deposit";
+
+    case "WITHDRAWAL":
+      return "Withdrawal";
+
+    case "TRANSFER_IN":
+      return "Transfer In";
+
+    case "TRANSFER_OUT":
+      return "Transfer Out";
+
+    default:
+      return "Transaction";
+  }
+}
+
+function formatTransactionDate(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const isToday = date.toDateString() === now.toDateString();
+
+  if (isToday) {
+    return date.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  return date.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default function TransactionItem({ transaction }: TransactionItemProps) {
-  const isExpense = transaction.amount < 0;
+  const isExpense =
+    transaction.type === "WITHDRAWAL" || transaction.type === "TRANSFER_OUT";
 
   return (
     <div className="flex items-center justify-between rounded-2xl px-3 py-3 transition hover:bg-background">
@@ -29,10 +66,12 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
 
         <div>
           <p className="text-sm font-medium text-text-main">
-            {transaction.name}
+            {getTransactionLabel(transaction)}
           </p>
 
-          <p className="text-xs text-text-main/60">{transaction.date}</p>
+          <p className="text-xs text-text-main/60">
+            {formatTransactionDate(transaction.createdAt)}
+          </p>
         </div>
       </div>
 

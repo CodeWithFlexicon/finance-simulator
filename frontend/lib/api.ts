@@ -1,5 +1,5 @@
-import { getToken } from "./auth";
-import { LoginResponse, AccountResponse } from "./types";
+import { getToken, removeToken } from "./auth";
+import { LoginResponse, AccountResponse, TransactionResponse } from "./types";
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -67,6 +67,29 @@ export async function getAccounts(): Promise<AccountResponse[]> {
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Failed to fetch accounts: ${res.status} ${text}`);
+  }
+
+  return res.json();
+}
+
+export async function getTransactionsForAccount(
+  accountId: number,
+): Promise<TransactionResponse[]> {
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}/accounts/${accountId}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    removeToken();
+    window.location.href = "/login?error=session-expired";
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch transactions");
   }
 
   return res.json();

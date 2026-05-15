@@ -22,3 +22,14 @@ export type AccountResponse = {
   interestRate: number;
   createdAt: string;
 };
+
+export type TransactionResponse = {
+  id: number;
+  type: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER_IN" | "TRANSFER_OUT";
+  amount: number;
+  balanceAfter: number;
+  createdAt: string;
+  categoryId: number | null;
+  categoryName: string | null;
+  memo: string | null;
+};
