@@ -81,19 +81,28 @@ export default function AccountDetailPage() {
       >
         ← Back to Accounts
       </button>
-      <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
-        Account
-      </p>
+      <div className="rounded-4xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+          Account
+        </p>
 
-      <h2 className="mt-3 text-4xl font-semibold tracking-tight text-text-main">
-        {account.name}
-      </h2>
+        <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-4xl font-semibold tracking-tight text-text-main">
+              {account.name}
+            </h2>
 
-      <p className="mt-2 text-text-main/70">{account.accountType}</p>
+            <p className="mt-2 text-text-main/70">{account.accountType}</p>
+          </div>
 
-      <p className="mt-6 text-4xl font-semibold text-primary">
-        {formatCurrency(account.balance)}
-      </p>
+          <div className="sm:text-right">
+            <p className="text-sm text-text-main/60">Current Balance</p>
+            <p className="mt-2 text-4xl font-semibold text-primary">
+              {formatCurrency(account.balance)}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-12 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
         <p className="text-lg font-semibold text-text-main">Transactions</p>

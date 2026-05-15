@@ -3,7 +3,7 @@
 import AccountCard from "@/app/components/dashboard/AccountCard";
 import { getAccounts } from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
-import { p } from "motion/react-client";
+import { AccountResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
