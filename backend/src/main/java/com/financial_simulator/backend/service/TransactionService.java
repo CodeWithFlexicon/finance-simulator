@@ -24,7 +24,8 @@ public class TransactionService {
     private final CategoryRepository categoryRepo;
     private final AccountRepository accountRepo;
 
-    public TransactionService(TransactionRepository transactionRepo, CategoryRepository categoryRepo, AccountRepository accountRepo) {
+    public TransactionService(TransactionRepository transactionRepo, CategoryRepository categoryRepo,
+            AccountRepository accountRepo) {
         this.transactionRepo = transactionRepo;
         this.categoryRepo = categoryRepo;
         this.accountRepo = accountRepo;
@@ -73,8 +74,9 @@ public class TransactionService {
                 tx.getCreatedAt(),
                 cat != null ? cat.getId() : null,
                 cat != null ? cat.getName() : null,
-                tx.getMemo()
-        );
+                tx.getMemo(),
+                tx.getAccount().getId(),
+                tx.getAccount().getName());
     }
 
     public Page<TransactionResponse> search(Long userId, TransactionFilterRequest f, Pageable pageable) {

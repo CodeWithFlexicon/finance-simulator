@@ -94,3 +94,29 @@ export async function getTransactionsForAccount(
 
   return res.json();
 }
+
+export async function getRecentTransactions(): Promise<TransactionResponse[]> {
+  const token = getToken();
+
+  const res = await fetch(
+    `${BASE_URL}/transactions?size=5&sort=createdAt,desc`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (res.status === 401) {
+    removeToken();
+    window.location.href = "/login?error=session-expired";
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch recent transactions");
+  }
+
+  const page = await res.json();
+
+  return page.content;
+}

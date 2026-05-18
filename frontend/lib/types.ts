@@ -25,6 +25,8 @@ export type AccountResponse = {
 
 export type TransactionResponse = {
   id: number;
+  accountId: number;
+  accountName: string;
   type: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER_IN" | "TRANSFER_OUT";
   amount: number;
   balanceAfter: number;

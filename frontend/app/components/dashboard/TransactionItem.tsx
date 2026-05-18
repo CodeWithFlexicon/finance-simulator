@@ -4,6 +4,7 @@ import { FaMoneyBillWave, FaShoppingCart } from "react-icons/fa";
 
 type TransactionItemProps = {
   transaction: TransactionResponse;
+  showAccount?: boolean;
 };
 
 function getTransactionLabel(transaction: TransactionResponse) {
@@ -47,7 +48,10 @@ function formatTransactionDate(dateString: string) {
   });
 }
 
-export default function TransactionItem({ transaction }: TransactionItemProps) {
+export default function TransactionItem({
+  transaction,
+  showAccount = false,
+}: TransactionItemProps) {
   const isExpense =
     transaction.type === "WITHDRAWAL" || transaction.type === "TRANSFER_OUT";
 
@@ -70,7 +74,9 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
           </p>
 
           <p className="text-xs text-text-main/60">
-            {formatTransactionDate(transaction.createdAt)}
+            {showAccount
+              ? `${transaction.accountName} • ${formatTransactionDate(transaction.createdAt)}`
+              : formatTransactionDate(transaction.createdAt)}
           </p>
         </div>
       </div>
