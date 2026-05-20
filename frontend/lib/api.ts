@@ -121,10 +121,26 @@ export async function getRecentTransactions(): Promise<TransactionResponse[]> {
   return page.content;
 }
 
-export async function getTransactions(): Promise<TransactionResponse[]> {
+export async function getTransactions(params?: {
+  page?: number;
+  size?: number;
+  sort?: string;
+  type?: string;
+  accountId?: number;
+}): Promise<TransactionResponse[]> {
   const token = getToken();
 
-  const res = await fetch(`${BASE_URL}/transactions?sort=createdAt,desc`, {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("page", String(params?.page ?? 0));
+  searchParams.set("size", String(params?.size ?? 25));
+  searchParams.set("sort", String(params?.sort ?? "createdAt,desc"));
+
+  if (params?.type) searchParams.set("type", params.type);
+  if (params?.accountId)
+    searchParams.set("accountId", String(params.accountId));
+
+  const res = await fetch(`${BASE_URL}/transactions?${searchParams}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
