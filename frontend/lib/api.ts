@@ -120,3 +120,26 @@ export async function getRecentTransactions(): Promise<TransactionResponse[]> {
 
   return page.content;
 }
+
+export async function getTransactions(): Promise<TransactionResponse[]> {
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}/transactions?sort=createdAt,desc`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    removeToken();
+    window.location.href = "/login?error=session-expired";
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch transactions");
+  }
+
+  const page = await res.json();
+
+  return page.content;
+}

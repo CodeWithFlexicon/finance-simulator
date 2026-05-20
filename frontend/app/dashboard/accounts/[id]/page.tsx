@@ -16,23 +16,6 @@ export default function AccountDetailPage() {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const transactionGroups = [
-    {
-      label: "Today",
-      transactions: [
-        { name: "Netflix", amount: -24.99, date: "2:14 PM" },
-        { name: "Coffee Shop", amount: -8.25, date: "9:10 AM" },
-      ],
-    },
-    {
-      label: "Earlier This Week",
-      transactions: [
-        { name: "Salary", amount: 2400, date: "Jan 15" },
-        { name: "Amazon", amount: -54.23, date: "Jan 14" },
-      ],
-    },
-  ];
-
   useEffect(() => {
     const token = getToken();
 
