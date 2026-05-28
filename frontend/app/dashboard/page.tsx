@@ -1,16 +1,20 @@
 "use client";
 
-import { getAccounts } from "@/lib/api";
+import { getAccounts, getRecentTransactions } from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
-import { AccountResponse } from "@/lib/types";
+import { AccountResponse, TransactionResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AccountCard from "../components/dashboard/AccountCard";
 import { formatCurrency } from "@/lib/format";
+import TransactionItem from "../components/dashboard/TransactionItem";
 
 export default function Dashboard() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<
+    TransactionResponse[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
@@ -28,10 +32,15 @@ export default function Dashboard() {
       return;
     }
 
-    async function loadAccounts() {
+    async function loadDashboard() {
       try {
-        const data = await getAccounts();
-        setAccounts(data);
+        const [accountsData, transactionsData] = await Promise.all([
+          getAccounts(),
+          getRecentTransactions(),
+        ]);
+
+        setAccounts(accountsData);
+        setRecentTransactions(transactionsData);
       } catch {
         removeToken();
         router.replace("/login?error=session-expired");
@@ -40,7 +49,7 @@ export default function Dashboard() {
       }
     }
 
-    loadAccounts();
+    loadDashboard();
   }, [router]);
 
   if (loading) {
@@ -100,30 +109,19 @@ export default function Dashboard() {
 
         <div className="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <div className="flex flex-col gap-4">
-            {[
-              { name: "Netflix", amount: -24.99, date: "Jan 18" },
-              { name: "Grocery Store", amount: -84.23, date: "Jan 12" },
-              { name: "Salary", amount: 2400, date: "Jan 10" },
-            ].map((txn, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between border-b border-text-main/5 pb-4 last:border-none last:pb-0"
-              >
-                <div>
-                  <p className="text-sm font-medium text-text-main">
-                    {txn.name}
-                  </p>
-                  <p className="text-xs text-text-main/60">{txn.date}</p>
-                </div>
-
-                <p
-                  className={`text-sm font-semibold ${txn.amount < 0 ? "text-red-500" : "text-green-500"}`}
-                >
-                  {txn.amount < 0 ? "-" : "+"}
-                  {formatCurrency(Math.abs(txn.amount))}
-                </p>
-              </div>
-            ))}
+            {recentTransactions.length > 0 ? (
+              recentTransactions.map((transaction) => (
+                <TransactionItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  showAccount
+                />
+              ))
+            ) : (
+              <p className="py-6 text-center text-sm text-text-main/60">
+                No recent transactions yet.
+              </p>
+            )}
           </div>
         </div>
       </section>

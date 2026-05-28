@@ -1,15 +1,14 @@
 "use client";
 
-import { isDragActive } from "motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
   { label: "Overview", href: "/dashboard" },
   { label: "Accounts", href: "/dashboard/accounts" },
-  { label: "Transactions", href: "dashboard/transactions" },
-  { label: "Budgets", href: "dashboard/budgets" },
-  { label: "Reports", href: "dashboard/reports" },
+  { label: "Transactions", href: "/dashboard/transactions" },
+  { label: "Budgets", href: "/dashboard/budgets" },
+  { label: "Reports", href: "/dashboard/reports" },
 ];
 
 export default function DashboardSidebar() {

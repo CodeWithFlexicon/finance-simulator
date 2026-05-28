@@ -1,5 +1,5 @@
-import { getToken } from "./auth";
-import { LoginResponse, AccountResponse } from "./types";
+import { getToken, removeToken } from "./auth";
+import { LoginResponse, AccountResponse, TransactionResponse, PageResponse } from "./types";
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -67,6 +67,92 @@ export async function getAccounts(): Promise<AccountResponse[]> {
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Failed to fetch accounts: ${res.status} ${text}`);
+  }
+
+  return res.json();
+}
+
+export async function getTransactionsForAccount(
+  accountId: number,
+): Promise<TransactionResponse[]> {
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}/accounts/${accountId}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    removeToken();
+    window.location.href = "/login?error=session-expired";
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch transactions");
+  }
+
+  return res.json();
+}
+
+export async function getRecentTransactions(): Promise<TransactionResponse[]> {
+  const token = getToken();
+
+  const res = await fetch(
+    `${BASE_URL}/transactions?size=5&sort=createdAt,desc`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (res.status === 401) {
+    removeToken();
+    window.location.href = "/login?error=session-expired";
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch recent transactions");
+  }
+
+  const page = await res.json();
+
+  return page.content;
+}
+
+export async function getTransactions(params?: {
+  page?: number;
+  size?: number;
+  sort?: string;
+  type?: string;
+  accountId?: number;
+}): Promise<PageResponse<TransactionResponse>> {
+  const token = getToken();
+
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("page", String(params?.page ?? 0));
+  searchParams.set("size", String(params?.size ?? 25));
+  searchParams.set("sort", String(params?.sort ?? "createdAt,desc"));
+
+  if (params?.type) searchParams.set("type", params.type);
+  if (params?.accountId)
+    searchParams.set("accountId", String(params.accountId));
+
+  const res = await fetch(`${BASE_URL}/transactions?${searchParams}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    removeToken();
+    window.location.href = "/login?error=session-expired";
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch transactions");
   }
 
   return res.json();

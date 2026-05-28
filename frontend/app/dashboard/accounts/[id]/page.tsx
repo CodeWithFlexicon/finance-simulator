@@ -1,10 +1,10 @@
 "use client";
 
 import TransactionItem from "@/app/components/dashboard/TransactionItem";
-import { getAccounts } from "@/lib/api";
+import { getAccounts, getTransactionsForAccount } from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
 import { formatCurrency } from "@/lib/format";
-import { AccountResponse } from "@/lib/types";
+import { AccountResponse, TransactionResponse } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -13,24 +13,8 @@ export default function AccountDetailPage() {
   const params = useParams();
 
   const [account, setAccount] = useState<AccountResponse | null>(null);
+  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const transactionGroups = [
-    {
-      label: "Today",
-      transactions: [
-        { name: "Netflix", amount: -24.99, date: "2:14 PM" },
-        { name: "Coffee Shop", amount: -8.25, date: "9:10 AM" },
-      ],
-    },
-    {
-      label: "Earlier This Week",
-      transactions: [
-        { name: "Salary", amount: 2400, date: "Jan 15" },
-        { name: "Amazon", amount: -54.23, date: "Jan 14" },
-      ],
-    },
-  ];
 
   useEffect(() => {
     const token = getToken();
@@ -54,6 +38,9 @@ export default function AccountDetailPage() {
         }
 
         setAccount(found);
+
+        const txnData = await getTransactionsForAccount(found.id);
+        setTransactions(txnData);
       } catch {
         removeToken();
         router.replace("/login?error=session-expired");
@@ -107,20 +94,16 @@ export default function AccountDetailPage() {
       <div className="mt-12 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
         <p className="text-lg font-semibold text-text-main">Transactions</p>
 
-        <div className="mt-6 flex flex-col gap-8">
-          {transactionGroups.map((group) => (
-            <div key={group.label}>
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-main/50">
-                {group.label}
-              </h3>
-
-              <div className="flex flex-col gap-3">
-                {group.transactions.map((txn, index) => (
-                  <TransactionItem key={index} transaction={txn} />
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="mt-6 flex flex-col gap-3">
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
+              <TransactionItem key={transaction.id} transaction={transaction} />
+            ))
+          ) : (
+            <p className="py-6 text-center text-sm text-text-main/60">
+              No transactions yet.
+            </p>
+          )}
         </div>
       </div>
     </section>

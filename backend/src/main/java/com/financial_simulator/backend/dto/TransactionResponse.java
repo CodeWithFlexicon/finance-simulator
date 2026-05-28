@@ -18,4 +18,7 @@ public class TransactionResponse {
     private Long categoryId;
     private String categoryName;
     private String memo;
+
+    private Long accountId;
+    private String accountName;
 }
