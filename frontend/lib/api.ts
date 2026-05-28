@@ -1,5 +1,5 @@
 import { getToken, removeToken } from "./auth";
-import { LoginResponse, AccountResponse, TransactionResponse } from "./types";
+import { LoginResponse, AccountResponse, TransactionResponse, PageResponse } from "./types";
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -127,7 +127,7 @@ export async function getTransactions(params?: {
   sort?: string;
   type?: string;
   accountId?: number;
-}): Promise<TransactionResponse[]> {
+}): Promise<PageResponse<TransactionResponse>> {
   const token = getToken();
 
   const searchParams = new URLSearchParams();
@@ -155,7 +155,5 @@ export async function getTransactions(params?: {
     throw new Error("Failed to fetch transactions");
   }
 
-  const page = await res.json();
-
-  return page.content;
+  return res.json();
 }

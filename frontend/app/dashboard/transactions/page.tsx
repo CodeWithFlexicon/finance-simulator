@@ -3,13 +3,15 @@
 import TransactionItem from "@/app/components/dashboard/TransactionItem";
 import { getTransactions } from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
-import { TransactionResponse } from "@/lib/types";
+import { PageResponse, TransactionResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function TransactionPage() {
   const router = useRouter();
-  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
+  const [transactionPage, setTransactionPage] =
+    useState<PageResponse<TransactionResponse> | null>(null);
+  const [page, setPage] = useState(0);
   const [sort, setSort] = useState("createdAt,desc");
   const [type, setType] = useState("");
   const [loading, setLoading] = useState(true);
@@ -27,11 +29,12 @@ export default function TransactionPage() {
 
       try {
         const data = await getTransactions({
+          page,
           sort,
           type: type || undefined,
         });
 
-        setTransactions(data);
+        setTransactionPage(data);
       } catch {
         removeToken();
         router.replace("/login?error=session-expired");
@@ -41,7 +44,9 @@ export default function TransactionPage() {
     }
 
     loadTransactions();
-  }, [router, sort, type]);
+  }, [router, page, sort, type]);
+
+  const transactions = transactionPage?.content ?? [];
 
   return (
     <section>
@@ -60,7 +65,10 @@ export default function TransactionPage() {
           </label>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value)}
+            onChange={(e) => {
+              setSort(e.target.value);
+              setPage(0);
+            }}
             className="rounded-2xl border border-text-main/10 bg-background px-4 py-3 text-sm text-text-main outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
           >
             <option value="createdAt,desc">Newest first</option>
@@ -76,7 +84,10 @@ export default function TransactionPage() {
           </label>
           <select
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => {
+              setType(e.target.value);
+              setPage(0);
+            }}
             className="rounded-2xl border border-text-main/10 bg-background px-4 py-3 text-sm text-text-main outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
           >
             <option value="">All types</option>
@@ -109,6 +120,29 @@ export default function TransactionPage() {
           </div>
         </div>
       )}
+
+      <div className="mt-6 flex items-center justify-between">
+        <button
+          disabled={transactionPage?.first}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+          className="rounded-full border border-text-main/10 bg-white px-5 py-2.5 text-sm font-medium text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <p className="text-sm text-text-main/60">
+          Page {(transactionPage?.number ?? 0) + 1} of{" "}
+          {transactionPage?.totalPages ?? 1}
+        </p>
+
+        <button
+          disabled={transactionPage?.last}
+          onClick={() => setPage((prev) => prev + 1)}
+          className="rounded-full border border-text-main/10 bg-white px-5 py-2.5 text-sm font-medium text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </section>
   );
 }
